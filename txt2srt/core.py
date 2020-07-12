@@ -111,33 +111,14 @@ def run():
     outfile = open(exportf, "w")
     srt_txt = convert(file.read(), timedelta)
     outfile.write(srt_txt)
-    # i = 0
-    # for x in file:
-    #     if x == "\n":
-    #         continue
-    #     outfile.write(str(i) + "\n")
-    #     time = i * timedelta
-    #     nexttime = (i + 1) * timedelta
-    #     hour = int(time / 3600)
-    #     min = int(time / 60) % 60
-    #     sec = int(time) % 60
-    #     nexthour = int(nexttime / 3600)
-    #     nextmin = int(nexttime / 60) % 60
-    #     nextsec = int(nexttime) % 60
-    #     outfile.write("%02d:%02d:%02d,000 --> %02d:%02d:%02d,000\n" %
-    #                   (hour, min, sec, nexthour, nextmin, nextsec))
-    #     outfile.write(x + "\n")
-    #     i += 1
-    # exit()
+    exit()
 
-
-
-
-window = tk.Tk()
-window.title("txt2srt")
-window.resizable(False,False)
 
 if __name__ == '__main__':
+    window = tk.Tk()
+    window.title("txt2srt")
+    window.resizable(False,False)
+
     tk.Label(window, text = "Import from:").grid(row = 0,column = 0)
     importfVar = tk.StringVar()
     tk.Entry(window, width = 60, textvariable = importfVar, state = "disabled").grid(row = 0, column = 1,columnspan = 5)
