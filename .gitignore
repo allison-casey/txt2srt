@@ -1,3 +1,6 @@
+.envrc
+.direnv/
+
 # test files
 *.txt
 *.srt

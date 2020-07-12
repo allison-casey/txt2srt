@@ -16,25 +16,25 @@ total = 0
 updating = False
 
 def openfile():
-    global importf 
+    global importf
     global timedelta
-    global total 
-    
+    global total
+
     importf = fd.askopenfilename()
-    if(importf == ""): 
+    if(importf == ""):
         return 0
-    
+
     getnumlines()
-    
+
     importfVar.set(importf)
-    
-    
-    
+
+
+
     if(timedelta == 5 and total != 0):
         updatefromtotal()
     else:
         updatefromdelta()
-    
+
     return importf
 
 def getnumlines():
@@ -66,7 +66,7 @@ def updatefromdelta(*args):
     updating = False
 
 def updatefromtotal(*args):
-    global updating 
+    global updating
     global timedelta
     global total
 
@@ -106,7 +106,7 @@ def run():
         outfile.write(x + "\n")
         i += 1
     exit()
-    
+
 
 
 
