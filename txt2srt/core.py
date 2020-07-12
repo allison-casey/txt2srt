@@ -81,8 +81,7 @@ def updatefromtotal(*args):
     updating = False
 
 
-def convert(src_txt: str) -> str:
-    timedelta = 5
+def convert(src_txt: str, timedelta: int = 5) -> str:
     output = []
     i = 0
     for line in src_txt.splitlines():
@@ -110,24 +109,26 @@ def run():
     exportf = fd.asksaveasfilename(defaultextension = ".srt")
     file = open(importf, "r")
     outfile = open(exportf, "w")
-    i = 0
-    for x in file:
-        if x == "\n":
-            continue
-        outfile.write(str(i) + "\n")
-        time = i * timedelta
-        nexttime = (i + 1) * timedelta
-        hour = int(time / 3600)
-        min = int(time / 60) % 60
-        sec = int(time) % 60
-        nexthour = int(nexttime / 3600)
-        nextmin = int(nexttime / 60) % 60
-        nextsec = int(nexttime) % 60
-        outfile.write("%02d:%02d:%02d,000 --> %02d:%02d:%02d,000\n" %
-                      (hour, min, sec, nexthour, nextmin, nextsec))
-        outfile.write(x + "\n")
-        i += 1
-    exit()
+    srt_txt = convert(file.read(), timedelta)
+    outfile.write(srt_txt)
+    # i = 0
+    # for x in file:
+    #     if x == "\n":
+    #         continue
+    #     outfile.write(str(i) + "\n")
+    #     time = i * timedelta
+    #     nexttime = (i + 1) * timedelta
+    #     hour = int(time / 3600)
+    #     min = int(time / 60) % 60
+    #     sec = int(time) % 60
+    #     nexthour = int(nexttime / 3600)
+    #     nextmin = int(nexttime / 60) % 60
+    #     nextsec = int(nexttime) % 60
+    #     outfile.write("%02d:%02d:%02d,000 --> %02d:%02d:%02d,000\n" %
+    #                   (hour, min, sec, nexthour, nextmin, nextsec))
+    #     outfile.write(x + "\n")
+    #     i += 1
+    # exit()
 
 
 
