@@ -5,10 +5,6 @@ import sys
 import tkinter as tk
 import tkinter.filedialog as fd
 
-
-
-
-
 numlines = 0
 importf = ""
 timedelta = 0
@@ -83,6 +79,32 @@ def updatefromtotal(*args):
             timedelta = int(total/numlines)
             timedeltaVar.set(str(timedelta))
     updating = False
+
+
+def convert(src_txt: str) -> str:
+    timedelta = 5
+    output = []
+    i = 0
+    for line in src_txt.splitlines():
+        if not line:
+            continue
+        output.append(str(i))
+        time = i * timedelta
+        nexttime = (i + 1) * timedelta
+        hour = int(time / 3600)
+        min = int(time / 60) % 60
+        sec = int(time) % 60
+        nexthour = int(nexttime / 3600)
+        nextmin = int(nexttime / 60) % 60
+        nextsec = int(nexttime) % 60
+        output.append("%02d:%02d:%02d,000 --> %02d:%02d:%02d,000" %
+                      (hour, min, sec, nexthour, nextmin, nextsec))
+        output.append(line)
+        output.append("")
+        i += 1
+
+    return "\n".join(output).rstrip()
+
 
 def run():
     exportf = fd.asksaveasfilename(defaultextension = ".srt")
