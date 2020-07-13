@@ -12,21 +12,6 @@ def srt_time(hour: int, min: int, sec: int, milli: int) -> str:
     return f"{hour:02}:{min:02}:{sec:02},{milli:03}"
 
 
-def srt_time_range(
-    start_hour: int,
-    start_min: int,
-    start_sec: int,
-    start_milli: int,
-    end_hour: int,
-    end_min: int,
-    end_sec: int,
-    end_milli: int,
-) -> str:
-    start_time = srt_time(start_hour, start_min, start_sec, start_milli)
-    end_time = srt_time(end_hour, end_min, end_sec, end_milli)
-    return f"{start_time} --> {end_time}"
-
-
 @dataclass
 class Section:
     start_hour: int
@@ -42,19 +27,22 @@ class Section:
     capture_sequence: int
     text: str
 
-    def __repr__(self):
-        time_range = srt_time_range(
-            self.start_hour,
-            self.start_min,
-            self.start_sec,
-            self.start_milli,
-            self.end_hour,
-            self.end_min,
-            self.end_sec,
-            self.end_milli,
+    @property
+    def start_time(self):
+        return srt_time(
+            self.start_hour, self.start_min, self.start_sec, self.start_milli
         )
 
-        return str.join("\n", [str(self.capture_sequence), time_range, self.text])
+    @property
+    def end_time(self):
+        return srt_time(self.end_hour, self.end_min, self.end_sec, self.end_milli)
+
+    @property
+    def time_range(self):
+        return f"{self.start_time} --> {self.end_time}"
+
+    def __repr__(self):
+        return str.join("\n", [str(self.capture_sequence), self.time_range, self.text])
 
 
 def parse(capture_sequence: int, text: str, time_delta: int) -> Section:
@@ -112,4 +100,3 @@ def convert_file(src_file: Union[str, Path], output_file: Union[str, Path], **kw
     srt_txt = convert(src_txt, **kwargs)
 
     Path(output_file).write_text(srt_txt)
-
