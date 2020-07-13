@@ -24,7 +24,7 @@ class Section:
     end_sec: int
     end_milli: int
 
-    capture_sequence: int
+    sequence_number: int
     text: str
 
     @property
@@ -42,12 +42,12 @@ class Section:
         return f"{self.start_time} --> {self.end_time}"
 
     def __repr__(self):
-        return str.join("\n", [str(self.capture_sequence), self.time_range, self.text])
+        return str.join("\n", [str(self.sequence_number), self.time_range, self.text])
 
 
-def parse(capture_sequence: int, text: str, time_delta: int) -> Section:
-    time = capture_sequence * time_delta
-    nexttime = (capture_sequence + 1) * time_delta
+def parse(sequence_number: int, text: str, time_delta: int) -> Section:
+    time = sequence_number * time_delta
+    nexttime = (sequence_number + 1) * time_delta
     hour = time // 3600
     min = time // 60 % 60
     sec = int(time) % 60
@@ -56,7 +56,7 @@ def parse(capture_sequence: int, text: str, time_delta: int) -> Section:
     next_sec = int(nexttime) % 60
 
     return Section(
-        hour, min, sec, 0, next_hour, next_min, next_sec, 0, capture_sequence + 1, text
+        hour, min, sec, 0, next_hour, next_min, next_sec, 0, sequence_number + 1, text
     )
 
 
