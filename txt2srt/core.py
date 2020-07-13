@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Union
 
 
-def srt_time(hour: int, min: int, sec: int, milli: int) -> str:
-    return f"{hour:02}:{min:02}:{sec:02},{milli:03}"
+def srt_time(hour: int, minute: int, sec: int, milli: int) -> str:
+    return f"{hour:02}:{minute:02}:{sec:02},{milli:03}"
 
 
 @dataclass
