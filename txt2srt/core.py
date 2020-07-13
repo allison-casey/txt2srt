@@ -83,7 +83,7 @@ def convert(
         time_delta: Optional; Seconds each subtitle section should remain on
           screen. Defaults to 5 seconds.
         split_on_empty_lines: Optional; Defines what is considered a chunk of
-          dialogue. If True, a chunk is separated by an empty line only
+          dialogue. If True, a chunk is separated by an empty line or lines only
           otherwise a chunk is created by every line break.
 
     Returns:
