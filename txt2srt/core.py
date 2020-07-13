@@ -55,7 +55,7 @@ class Section:
         return str.join("\n", [str(self.capture_sequence), time_range, self.text])
 
 
-def parse(capture_sequence: int, text: str, time_delta: int = 5) -> Section:
+def parse(capture_sequence: int, text: str, time_delta: int) -> Section:
     time = capture_sequence * time_delta
     nexttime = (capture_sequence + 1) * time_delta
     hour = time // 3600
@@ -71,13 +71,13 @@ def parse(capture_sequence: int, text: str, time_delta: int = 5) -> Section:
 
 
 def convert(
-    src_txt: str, timedelta: int = 5, split_on_empty_lines: bool = False
+    src_txt: str, time_delta: int = 5, split_on_empty_lines: bool = False
 ) -> str:
     if split_on_empty_lines:
         chunks = re.split(r"(?:\r?\n){2,}", src_txt.strip())
     else:
         chunks = (line for line in src_txt.splitlines() if line)
 
-    sections = (str(parse(i, text)) for i, text in enumerate(chunks))
+    sections = (str(parse(i, text, time_delta)) for i, text in enumerate(chunks))
 
     return str.join("\n\n", sections)
