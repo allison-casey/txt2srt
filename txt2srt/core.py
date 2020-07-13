@@ -1,8 +1,9 @@
 # written by deciMae, minorly edited by glumbaron
 
+import re
 import sys
-from functools import reduce
 from dataclasses import dataclass
+from functools import reduce
 
 
 def srt_time(hour: int, min: int, sec: int, milli: int) -> str:
@@ -65,13 +66,17 @@ def parse(capture_sequence: int, text: str, time_delta: int = 5) -> Section:
     next_sec = int(nexttime) % 60
 
     return Section(
-        hour, min, sec, 0, next_hour, next_min, next_sec, 0, capture_sequence, text
+        hour, min, sec, 0, next_hour, next_min, next_sec, 0, capture_sequence + 1, text
     )
 
 
-def convert(src_txt: str, timedelta: int = 5) -> str:
-    lines = (line for line in src_txt.splitlines() if line)
-    sections = [str(parse(i, text)) for i, text in enumerate(lines)]
+def convert(
+    src_txt: str, timedelta: int = 5, split_on_empty_lines: bool = False
+) -> str:
+    if split_on_empty_lines:
+        chunks = re.split(r"(?:\r?\n){2,}", src_txt.strip())
+    else:
+        chunks = (line for line in src_txt.splitlines() if line)
+    sections = [ str(parse(i, text)) for i, text in enumerate(chunks) ]
 
     return str.join("\n\n", sections)
-
