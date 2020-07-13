@@ -77,6 +77,7 @@ def convert(
         chunks = re.split(r"(?:\r?\n){2,}", src_txt.strip())
     else:
         chunks = (line for line in src_txt.splitlines() if line)
-    sections = [ str(parse(i, text)) for i, text in enumerate(chunks) ]
+
+    sections = (str(parse(i, text)) for i, text in enumerate(chunks))
 
     return str.join("\n\n", sections)
