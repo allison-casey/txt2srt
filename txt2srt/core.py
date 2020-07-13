@@ -4,6 +4,8 @@ import re
 import sys
 from dataclasses import dataclass
 from functools import reduce
+from pathlib import Path
+from typing import Union
 
 
 def srt_time(hour: int, min: int, sec: int, milli: int) -> str:
@@ -73,6 +75,20 @@ def parse(capture_sequence: int, text: str, time_delta: int) -> Section:
 def convert(
     src_txt: str, time_delta: int = 5, split_on_empty_lines: bool = False
 ) -> str:
+    """
+    Converts a pre-formated text into valid SubRip Text (srt) file format.
+
+    Args:
+        src_txt: Source text to convert
+        time_delta: Optional; Seconds each subtitle section should remain on
+          screen. Defaults to 5 seconds.
+        split_on_empty_lines: Optional; Defines what is considered a chunk of
+          dialogue. If True, a chunk is separated by an empty line only
+          otherwise a chunk is created by every line break.
+
+    Returns:
+       The converted SRT text.
+    """
     if split_on_empty_lines:
         chunks = re.split(r"(?:\r?\n){2,}", src_txt.strip())
     else:
@@ -81,3 +97,19 @@ def convert(
     sections = (str(parse(i, text, time_delta)) for i, text in enumerate(chunks))
 
     return str.join("\n\n", sections)
+
+
+def convert_file(src_file: Union[str, Path], output_file: Union[str, Path], **kwargs):
+    """
+    Converts a pre-formated text file into valid SubRip Text (srt) file format.
+
+    Args:
+        src_file: Path to the input text document.
+        output_file: Path to the converted srt file.
+        kwargs: See `convert` for available conversion options.
+    """
+    src_txt = Path(src_file).read_text()
+    srt_txt = convert(src_txt, **kwargs)
+
+    Path(output_file).write_text(srt_txt)
+
