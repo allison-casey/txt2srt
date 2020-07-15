@@ -8,41 +8,33 @@ from pathlib import Path
 from typing import Union, Generator, List
 
 
-def srt_time(hour: int, minute: int, sec: int, milli: int) -> str:
-    return f"{hour:02}:{minute:02}:{sec:02},{milli:03}"
+@dataclass
+class SrtTimestamp:
+    hour: int
+    minute: int
+    second: int
+    millisecond: int
+
+    def __repr__(self):
+        return (
+            f"{self.hour:02}:{self.minute:02}:"
+            f"{self.second:02},{self.millisecond:03}"
+        )
 
 
 @dataclass
 class Section:
-    start_hour: int
-    start_min: int
-    start_sec: int
-    start_milli: int
-
-    end_hour: int
-    end_min: int
-    end_sec: int
-    end_milli: int
-
+    start: SrtTimestamp
+    end: SrtTimestamp
     sequence_number: int
     text: str
 
     @property
-    def start_time(self):
-        return srt_time(
-            self.start_hour, self.start_min, self.start_sec, self.start_milli
-        )
-
-    @property
-    def end_time(self):
-        return srt_time(self.end_hour, self.end_min, self.end_sec, self.end_milli)
-
-    @property
-    def time_range(self):
-        return f"{self.start_time} --> {self.end_time}"
+    def range(self):
+        return f"{self.start} --> {self.end}"
 
     def __repr__(self):
-        return str.join("\n", [str(self.sequence_number), self.time_range, self.text])
+        return str.join("\n", [str(self.sequence_number), self.range, self.text])
 
 
 def parse_chunk(sequence_number: int, text: str, time_delta: int) -> Section:
@@ -56,13 +48,16 @@ def parse_chunk(sequence_number: int, text: str, time_delta: int) -> Section:
     next_sec = int(nexttime) % 60
 
     return Section(
-        hour, min, sec, 0, next_hour, next_min, next_sec, 0, sequence_number + 1, text
+        SrtTimestamp(hour, min, sec, 0),
+        SrtTimestamp(next_hour, next_min, next_sec, 0),
+        sequence_number + 1,
+        text,
     )
 
 
 def split_by_score(text: str, base_width: int = 10, best_length: int = 80) -> List[str]:
     num_chars = len(text)
-    scores = [[0, 0] for i in range(num_chars + 3)]
+    scores = [[0, 0] for _ in range(num_chars + 3)]
     for i in reversed(range(num_chars - 2)):
         listmin = i + 1
         listmax = min(int(round(i + best_length + 3 * base_width)), num_chars - 1)
