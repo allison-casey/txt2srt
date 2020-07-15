@@ -56,6 +56,11 @@ def parse_chunk(sequence_number: int, text: str, time_delta: int) -> Section:
 
 
 def split_by_score(text: str, base_width: int = 10, best_length: int = 80) -> List[str]:
+    """
+    Split text by score.
+
+    Written by Decimae. I have no idea how this works vOv.
+    """
     num_chars = len(text)
     scores = [[0, 0] for _ in range(num_chars + 3)]
     for i in reversed(range(num_chars - 2)):
