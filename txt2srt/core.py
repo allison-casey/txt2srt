@@ -5,7 +5,7 @@ import sys
 from dataclasses import dataclass
 from functools import reduce
 from pathlib import Path
-from typing import Union
+from typing import Union, Generator, List
 
 
 def srt_time(hour: int, minute: int, sec: int, milli: int) -> str:
@@ -45,7 +45,7 @@ class Section:
         return str.join("\n", [str(self.sequence_number), self.time_range, self.text])
 
 
-def parse(sequence_number: int, text: str, time_delta: int) -> Section:
+def parse_chunk(sequence_number: int, text: str, time_delta: int) -> Section:
     time = sequence_number * time_delta
     nexttime = (sequence_number + 1) * time_delta
     hour = time // 3600
@@ -60,9 +60,46 @@ def parse(sequence_number: int, text: str, time_delta: int) -> Section:
     )
 
 
-def convert(
-    src_txt: str, time_delta: int = 5, split_on_empty_lines: bool = False
-) -> str:
+def split_by_score(text: str, base_width: int = 10, best_length: int = 80) -> List[str]:
+    num_chars = len(text)
+    scores = [[0, 0] for i in range(num_chars + 3)]
+    for i in reversed(range(num_chars - 2)):
+        listmin = i + 1
+        listmax = min(int(round(i + best_length + 3 * base_width)), num_chars - 1)
+        ideal = i + best_length
+
+        for j in range(listmin, min(listmax + 1, num_chars - 1)):
+            if text[j] == text[j + 1] and text[j] == "\n":
+                listmax = j
+                break
+
+        scoreopts = [[k, 100] for k in range(listmin, listmax + 1)]
+
+        def score(k, preference):
+            return preference + ((k - ideal) / base_width) ** 2 + scores[k + 1][1]
+
+        for k in range(listmin, listmax + 1):
+            if text[k] in "\n.!":
+                scoreopts[k - listmin] = [k, score(k, 0.001)]
+            elif text[k] == ",;:":
+                scoreopts[k - listmin] = [k, score(k, 1.001)]
+            elif text[k] == " ":
+                scoreopts[k - listmin] = [k, score(k, 2.001)]
+
+        scores[i] = min(scoreopts, key=lambda pair: pair[1])
+
+    out = []
+    start = 0
+    while scores[start][0] != 0:
+        end = scores[start][0] + 1
+        chunk = text[start:end].strip()
+        start = end
+
+        out.append(chunk)
+    return out
+
+
+def convert(src_txt: str, time_delta: int = 5, split_type: str = "linebreak") -> str:
     """
     Converts a pre-formated text into valid SubRip Text (srt) file format.
 
@@ -70,19 +107,22 @@ def convert(
         src_txt: Source text to convert
         time_delta: Optional; Seconds each subtitle section should remain on
           screen. Defaults to 5 seconds.
-        split_on_empty_lines: Optional; Defines what is considered a chunk of
-          dialogue. If True, a chunk is separated by an empty line or lines only
-          otherwise a chunk is created by every line break.
+        split_type: Optional; Defines what is considered a chunk of
+          dialogue. Can be one of three options `linebreak`, `emptyline`, `score`.
 
     Returns:
        The converted SRT text.
     """
-    if split_on_empty_lines:
-        chunks = re.split(r"(?:\r?\n){2,}", src_txt.strip())
-    else:
+    if split_type == "linebreak":
         chunks = (line for line in src_txt.splitlines() if line)
+    elif split_type == "emptyline":
+        chunks = re.split(r"(?:\r?\n){2,}", src_txt.strip())
+    elif split_type == "score":
+        chunks = split_by_score(src_txt)
+    else:
+        raise ValueError(f"Undefined split type: {split_type}")
 
-    sections = (str(parse(i, text, time_delta)) for i, text in enumerate(chunks))
+    sections = (str(parse_chunk(i, text, time_delta)) for i, text in enumerate(chunks))
 
     return str.join("\n\n", sections)
 
